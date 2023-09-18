@@ -1,19 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
+import { PrismaService } from 'src/prisma/prisma/prisma.service';
+import { InvalidRelationError } from 'src/errors/invalid-relation.error';
 
 @Injectable()
 export class VideosService {
-  create(createVideoDto: CreateVideoDto) {
-    return 'This action adds a new video';
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async create(createVideoDto: CreateVideoDto) {
+    const isCategoryValid =
+      (await this.prismaService.category.count({
+        where: { id: createVideoDto.category_id },
+      })) != 0;
+    if (!isCategoryValid) {
+      throw new InvalidRelationError('Category not found');
+    }
+    return this.prismaService.video.create({
+      data: {
+        title: createVideoDto.title,
+        description: createVideoDto.description,
+        category_id: createVideoDto.category_id,
+        file_path: 'fake/video.mp4',
+      },
+    });
   }
 
   findAll() {
-    return `This action returns all videos`;
+    return this.prismaService.video.findMany({
+      include: { category: true },
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} video`;
+    return this.prismaService.video.findUniqueOrThrow({
+      where: { id },
+      include: { category: true },
+    });
   }
 
   update(id: number, updateVideoDto: UpdateVideoDto) {
