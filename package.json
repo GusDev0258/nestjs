@@ -18,7 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "repl": "bun run start -- --entryFile repl"
+    "repl": "bun run start -- --entryFile repl",
+    "build:swc": "swc --ignore \"**/*.spec.ts,src/hmr.ts\" --delete-dir-on-start --out-dir dist/ src/",
+    "dev:swc": "npm run build:swc && npm run start:dev",
+    "start:swc": "cross-env NODE_ENV=development npx nodemon --quiet --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec npm run dev:swc"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -26,6 +29,9 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.3.1",
+    "@swc/cli": "0.1.62",
+    "@swc/core": "1.3.76",
+    "@swc/jest": "0.2.29",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "reflect-metadata": "^0.1.13",
