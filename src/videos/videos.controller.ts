@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UploadedFile,
+  ParseFilePipe,
+} from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
@@ -8,7 +18,15 @@ export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
   @Post()
-  create(@Body() createVideoDto: CreateVideoDto) {
+  create(
+    @Body() createVideoDto: CreateVideoDto,
+    @UploadedFile(new ParseFilePipe({
+      validators:
+      {
+        new VideoFile
+      }
+    })) file: Express.Multer.File,
+  ) {
     return this.videosService.create(createVideoDto);
   }
 
